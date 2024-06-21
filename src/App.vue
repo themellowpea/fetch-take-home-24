@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import HelloWorld from './components/HelloWorld.vue'
+import SearchPage from './components/SearchPage.vue'
 import { onMounted } from 'vue'
 import { useDogStore } from './stores/dog'
 import { useAuthStore } from './stores/auth'
@@ -55,7 +55,7 @@ onMounted(async () => {
       >
         Log Out
       </button>
-      <HelloWorld />
+      <SearchPage />
     </div>
   </div>
 </template>
