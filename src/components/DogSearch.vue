@@ -41,8 +41,8 @@ async function goPrev() {
   await dogStore.goPrevPage(params.value)
 }
 
-function handleSelectDog(dog: Dog) {
-  dogStore.selectCurrentDog(dog)
+async function handleSelectDog(dog: Dog) {
+  await dogStore.selectCurrentDog(dog)
 }
 </script>
 

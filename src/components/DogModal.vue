@@ -14,7 +14,7 @@ import { storeToRefs } from 'pinia'
 
 const dogStore = useDogStore()
 
-const { showModal, currentDog } = storeToRefs(dogStore)
+const { showModal, currentDog, currentAddress } = storeToRefs(dogStore)
 
 function handleClose() {
   showModal.value = false
@@ -72,50 +72,58 @@ function handleClose() {
                   class="grid w-full grid-cols-1 items-start gap-x-6 gap-y-8 sm:grid-cols-12 lg:items-center lg:gap-x-8"
                 >
                   <div
-                    class="aspect-h-3 aspect-w-2 overflow-hidden rounded-lg bg-gray-100 sm:col-span-4 lg:col-span-5"
+                    class="aspect-h-3 aspect-w-3 overflow-hidden rounded-lg bg-gray-100 sm:col-span-4 lg:col-span-5"
                   >
                     <img :src="currentDog.img" alt="" class="object-cover object-center" />
                   </div>
                   <div class="sm:col-span-8 lg:col-span-7">
-                    <h2 class="text-xl font-medium text-gray-900 sm:pr-12">
-                      {{ currentDog.name }}
-                    </h2>
-
-                    <section aria-labelledby="information-heading" class="mt-1">
-                      <h3 id="information-heading" class="sr-only">Puppy Details</h3>
-
-                      <SwitchGroup as="div" class="flex items-center">
-                        <Switch
-                          v-model="currentDog.favorite"
+                    <h2 class="text-2xl font-bold text-gray-900 sm:pr-12">{{ currentDog.name }}</h2>
+                    <SwitchGroup as="div" class="flex items-center">
+                      <Switch
+                        v-model="currentDog.favorite"
+                        :class="[
+                          currentDog.favorite ? 'bg-green-600' : 'bg-gray-200',
+                          'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2'
+                        ]"
+                        @click="dogStore.toggleFavorite"
+                      >
+                        <span
+                          aria-hidden="true"
                           :class="[
-                            currentDog.favorite ? 'bg-indigo-600' : 'bg-gray-200',
-                            'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2'
+                            currentDog.favorite ? 'translate-x-5' : 'translate-x-0',
+                            'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out'
                           ]"
-                          @click="dogStore.toggleFavorite"
-                        >
-                          <span
-                            aria-hidden="true"
-                            :class="[
-                              currentDog.favorite ? 'translate-x-5' : 'translate-x-0',
-                              'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out'
-                            ]"
-                          />
-                        </Switch>
-                        <SwitchLabel as="span" class="ml-3 text-sm">
-                          <span class="font-medium text-gray-900">{{
-                            currentDog.favorite ? 'Favorite!' : `Add to Favorites`
-                          }}</span>
-                        </SwitchLabel>
-                      </SwitchGroup>
+                        />
+                      </Switch>
+                      <SwitchLabel as="span" class="ml-3 text-sm">
+                        <span class="font-medium text-gray-900">{{
+                          currentDog.favorite ? 'Favorite!' : `Add to Favorites`
+                        }}</span>
+                      </SwitchLabel>
+                    </SwitchGroup>
 
-                      <!-- Reviews -->
-                      <div class="mt-4">
-                        <h4 class="sr-only">Reviews</h4>
+                    <section aria-labelledby="puppy-information-heading" class="mt-2">
+                      <h3 id="puppy-information-heading" class="sr-only">Puppy Details</h3>
+
+                      <div class="mt-6">
+                        <h4 class="sr-only">Description</h4>
+                        <div class="mb-2">
+                          <h5 class="text-gray-900">Breed</h5>
+                          <p class="text-xs text-gray-600">{{ currentDog.breed }}</p>
+                        </div>
+                        <div class="mb-2">
+                          <h5 class="text-gray-900">Age</h5>
+                          <p class="text-xs text-gray-600">{{ currentDog.age }}</p>
+                        </div>
+                        <div>
+                          <h5 class="text-gray-900">Location</h5>
+                          <p class="text-xs text-gray-600">
+                            {{
+                              `${currentAddress.city}, ${currentAddress.state} ${currentAddress.zip_code}`
+                            }}
+                          </p>
+                        </div>
                       </div>
-                    </section>
-
-                    <section aria-labelledby="options-heading" class="mt-8">
-                      <h3 id="options-heading" class="sr-only">Product options</h3>
                     </section>
                   </div>
                 </div>

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import DogSearch from './components/DogSearch.vue'
-import { onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useDogStore } from './stores/dog'
 import { useAuthStore } from './stores/auth'
 
@@ -8,6 +8,14 @@ const dogStore = useDogStore()
 const authStore = useAuthStore()
 onMounted(async () => {
   await dogStore.getBreeds()
+})
+
+const hasFavorites = ref(false)
+dogStore.$subscribe((_, store) => {
+  const favorites = Object.keys(store.favoritesList)
+  if (favorites.length > 0) {
+    hasFavorites.value = true
+  } else hasFavorites.value = false
 })
 </script>
 
@@ -59,8 +67,9 @@ onMounted(async () => {
         Log Out
       </button>
       <button
+        v-if="hasFavorites"
         type="button"
-        class="rounded-md bg-indigo-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
+        class="ml-3 rounded-md bg-indigo-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
         @click.prevent="dogStore.findMatch"
       >
         Find Match

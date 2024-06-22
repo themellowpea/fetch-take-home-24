@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
-import { ref, shallowRef, type ShallowRef } from 'vue'
+import { computed, ref, shallowRef, type Ref, type ShallowRef } from 'vue'
 import axios from 'axios'
-import { type Dog, type DogSearchQueryParams } from '@/types'
+import { type Dog, type DogLocation, type DogSearchQueryParams } from '@/types'
 
 export const useDogStore = defineStore('dogStore', () => {
   const baseUrl = 'https://frontend-take-home-service.fetch.com'
@@ -12,7 +12,9 @@ export const useDogStore = defineStore('dogStore', () => {
   const next = ref('')
   const prev = ref('')
   const dogs: ShallowRef<Dog[]> = shallowRef([])
-  const currentDog = ref()
+  const currentDog: Ref<Dog> = ref({}) as Ref<Dog>
+  const currentAddress: Ref<DogLocation> = ref({}) as Ref<DogLocation>
+
   const showModal = ref(false)
   // App.vue is calling getBreeds() onMount so we will know authentication status when the app mounts
   // The user should be forced to login and authenticate
@@ -83,12 +85,30 @@ export const useDogStore = defineStore('dogStore', () => {
     breeds.value = []
     httpStatus.value = ''
     dogs.value = []
-    currentDog.value = {}
+    currentDog.value = {} as Dog
   }
 
-  function selectCurrentDog(dog: Dog) {
+  async function selectCurrentDog(dog: Dog) {
     currentDog.value = dog
+    await getCurrentLocation()
     showModal.value = true
+  }
+
+  async function getCurrentLocation() {
+    try {
+      const { zip_code } = currentDog.value
+      const { data } = await axios.post(`${baseUrl}/locations`, [zip_code], {
+        withCredentials: true,
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+      currentAddress.value = data[0]
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error(error.message)
+      } else console.error(error)
+    }
   }
 
   const favoritesList: ShallowRef<Record<string, boolean>> = shallowRef({})
@@ -130,6 +150,7 @@ export const useDogStore = defineStore('dogStore', () => {
     goPrevPage,
     showModal,
     currentDog,
+    currentAddress,
     selectCurrentDog,
     favoritesList,
     toggleFavorite,

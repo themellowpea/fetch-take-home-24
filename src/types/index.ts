@@ -9,7 +9,7 @@ export interface Dog {
   favorite?: boolean
 }
 
-export interface Location {
+export interface DogLocation {
   zip_code: string
   latitude: number
   longitude: number
