@@ -22,7 +22,17 @@ dogStore.$subscribe((_, store) => {
 <template>
   <div class="wrapper">
     <div v-if="!dogStore.isAuthenticated()">
-      <div class="mt-2">
+      <h1 class="mt-8 text-4xl font-bold text-gray-700">Welcome!</h1>
+
+      <p class="mt-4 text-sm text-gray-800">
+        Sign-in below to begin searching available adoptions!
+      </p>
+      <p class="text-xs text-gray-600">
+        You will be able to add selected dogs to a list of favorites and generate a match for
+        adoption instantly!
+      </p>
+
+      <div class="mt-8">
         <label for="name" class="sr-only block text-sm font-medium leading-6 text-gray-900"
           >Name</label
         >
