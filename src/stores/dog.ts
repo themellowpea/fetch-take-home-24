@@ -1,12 +1,12 @@
 import { defineStore } from 'pinia'
-import { computed, ref, shallowRef, type Ref, type ShallowRef } from 'vue'
+import { ref, shallowRef, type Ref, type ShallowRef } from 'vue'
 import axios from 'axios'
 import { type Dog, type DogLocation, type DogSearchQueryParams } from '@/types'
 
 export const useDogStore = defineStore('dogStore', () => {
   const baseUrl = 'https://frontend-take-home-service.fetch.com'
 
-  const breeds = ref([])
+  const breeds: Ref<string[]> = ref([])
   const httpStatus = ref('')
   const total = ref(0)
   const next = ref('')
@@ -86,6 +86,8 @@ export const useDogStore = defineStore('dogStore', () => {
     httpStatus.value = ''
     dogs.value = []
     currentDog.value = {} as Dog
+    total.value = 0
+    next.value = ''
   }
 
   async function selectCurrentDog(dog: Dog) {
