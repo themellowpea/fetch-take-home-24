@@ -140,7 +140,6 @@ export const useDogStore = defineStore('dogStore', () => {
       dogMatch.data[0].isMatch = true
       currentDog.value = dogMatch.data[0]
       showModal.value = true
-      console.log(dogMatch.data)
     } catch (error) {
       if (error instanceof Error) {
         console.error(error.message)
