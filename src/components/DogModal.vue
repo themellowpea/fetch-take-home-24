@@ -130,12 +130,14 @@ function handleClose() {
                       </div>
                     </section>
 
-                    <p v-if="currentDog.isMatch" class="bold text-2xl text-green-500 mt-4">
-                      Congratulations! You found a match!
-                    </p>
-                    <p class="text-sm text-gray-500 mb-4">
-                      Add more dogs to your favorites list and try again
-                    </p>
+                    <div v-if="currentDog.isMatch" class="p-2">
+                      <p class="bold text-2xl text-green-500 mt-4">
+                        Congratulations! You found a match!
+                      </p>
+                      <p class="text-sm text-gray-500 mb-4">
+                        Add more dogs to your favorites list and try again
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
