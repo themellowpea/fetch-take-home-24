@@ -1,18 +1,23 @@
 import { defineStore } from 'pinia'
-import { ref, shallowRef, type ShallowRef } from 'vue'
+import { computed, ref, shallowRef, type Ref, type ShallowRef } from 'vue'
 import axios from 'axios'
-import type { Dog, DogSearchQueryParams } from '@/types'
+import { type Dog, type DogLocation, type DogMatch, type DogSearchQueryParams } from '@/types'
 
 export const useDogStore = defineStore('dogStore', () => {
   const baseUrl = 'https://frontend-take-home-service.fetch.com'
 
-  const breeds = ref([])
+  const breeds: Ref<string[]> = ref([])
   const httpStatus = ref('')
   const total = ref(0)
   const next = ref('')
   const prev = ref('')
   const dogs: ShallowRef<Dog[]> = shallowRef([])
-  // App.vue is calling this onMount so we will know authentication status when the app mounts
+  const currentDog: Ref<Dog> = ref({}) as Ref<Dog>
+  const currentAddress: Ref<DogLocation> = ref({}) as Ref<DogLocation>
+
+  const showModal = ref(false)
+  // App.vue is calling getBreeds() onMount so we will know authentication status when the app mounts
+  // The user should be forced to login and authenticate
   async function getBreeds() {
     try {
       const { data, status } = await axios.get(`${baseUrl}/dogs/breeds`, {
@@ -57,31 +62,94 @@ export const useDogStore = defineStore('dogStore', () => {
     try {
       await searchDogs(params, baseUrl + next.value)
     } catch (error) {
-      console.error(error)
+      if (error instanceof Error) {
+        console.error(error.message)
+      } else console.error(error)
     }
   }
   async function goPrevPage(params: DogSearchQueryParams) {
     try {
       await searchDogs(params, baseUrl + prev.value)
     } catch (error) {
-      console.error(error)
+      if (error instanceof Error) {
+        console.error(error.message)
+      } else console.error(error)
     }
   }
 
-  function isAuthenticated() {
+  const isAuthenticated = computed(() => {
     return httpStatus.value === '200'
-  }
+  })
 
   function reset() {
     breeds.value = []
     httpStatus.value = ''
     dogs.value = []
+    currentDog.value = {} as Dog
+    total.value = 0
+    next.value = ''
+  }
+
+  async function selectCurrentDog(dog: Dog) {
+    currentDog.value = dog
+    await getCurrentLocation()
+    showModal.value = true
+  }
+
+  async function getCurrentLocation() {
+    try {
+      const { zip_code } = currentDog.value
+      const { data } = await axios.post(`${baseUrl}/locations`, [zip_code], {
+        withCredentials: true,
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+      currentAddress.value = data[0]
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error(error.message)
+      } else console.error(error)
+    }
+  }
+
+  const favoritesList: ShallowRef<Record<string, boolean>> = shallowRef({})
+  function toggleFavorite() {
+    if (favoritesList.value[currentDog.value.id]) {
+      delete favoritesList.value[currentDog.value.id]
+    } else favoritesList.value[currentDog.value.id] = true
+  }
+
+  async function findMatch() {
+    try {
+      const favoriteDogs = Object.keys(favoritesList.value)
+      const response = await axios.post(`${baseUrl}/dogs/match`, favoriteDogs, {
+        withCredentials: true,
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+      const data: DogMatch = response.data
+      const match: string[] = Object.keys(data).map((key) => data[key])
+      const dogMatch = await axios.post(`${baseUrl}/dogs`, match, {
+        withCredentials: true,
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+      dogMatch.data[0].isMatch = true
+      currentDog.value = dogMatch.data[0]
+      showModal.value = true
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error(error.message)
+      } else console.error(error)
+    }
   }
 
   return {
     breeds,
     getBreeds,
-    httpStatus,
     reset,
     isAuthenticated,
     searchDogs,
@@ -90,6 +158,13 @@ export const useDogStore = defineStore('dogStore', () => {
     next,
     prev,
     goNextPage,
-    goPrevPage
+    goPrevPage,
+    showModal,
+    currentDog,
+    currentAddress,
+    selectCurrentDog,
+    favoritesList,
+    toggleFavorite,
+    findMatch
   }
 })
