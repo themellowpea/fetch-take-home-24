@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
-import { ref, shallowRef, type Ref, type ShallowRef } from 'vue'
+import { computed, ref, shallowRef, type Ref, type ShallowRef } from 'vue'
 import axios from 'axios'
-import { type Dog, type DogLocation, type DogSearchQueryParams } from '@/types'
+import { type Dog, type DogLocation, type DogMatch, type DogSearchQueryParams } from '@/types'
 
 export const useDogStore = defineStore('dogStore', () => {
   const baseUrl = 'https://frontend-take-home-service.fetch.com'
@@ -77,9 +77,9 @@ export const useDogStore = defineStore('dogStore', () => {
     }
   }
 
-  function isAuthenticated() {
+  const isAuthenticated = computed(() => {
     return httpStatus.value === '200'
-  }
+  })
 
   function reset() {
     breeds.value = []
@@ -123,14 +123,24 @@ export const useDogStore = defineStore('dogStore', () => {
   async function findMatch() {
     try {
       const favoriteDogs = Object.keys(favoritesList.value)
-      console.log(favoriteDogs)
-      const { data } = await axios.post(`${baseUrl}/dogs/match`, favoriteDogs, {
+      const response = await axios.post(`${baseUrl}/dogs/match`, favoriteDogs, {
         withCredentials: true,
         headers: {
           'Content-Type': 'application/json'
         }
       })
-      console.log(data)
+      const data: DogMatch = response.data
+      const match: string[] = Object.keys(data).map((key) => data[key])
+      const dogMatch = await axios.post(`${baseUrl}/dogs`, match, {
+        withCredentials: true,
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+      dogMatch.data[0].isMatch = true
+      currentDog.value = dogMatch.data[0]
+      showModal.value = true
+      console.log(dogMatch.data)
     } catch (error) {
       if (error instanceof Error) {
         console.error(error.message)

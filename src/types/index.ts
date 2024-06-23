@@ -7,6 +7,7 @@ export interface Dog {
   zip_code: string
   breed: string
   favorite?: boolean
+  isMatch?: boolean
 }
 
 export interface DogLocation {
@@ -30,4 +31,8 @@ export interface DogSearchQueryParams {
   size?: number
   from?: number
   sort?: string
+}
+
+export interface DogMatch {
+  [match: string]: string
 }

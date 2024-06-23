@@ -13,11 +13,13 @@ import { useDogStore } from '../stores/dog'
 import { storeToRefs } from 'pinia'
 
 const dogStore = useDogStore()
-
 const { showModal, currentDog, currentAddress } = storeToRefs(dogStore)
 
 function handleClose() {
   showModal.value = false
+
+  // remove match to play again :)
+  currentDog.value.isMatch = false
 }
 </script>
 
@@ -76,9 +78,11 @@ function handleClose() {
                   >
                     <img :src="currentDog.img" alt="" class="object-cover object-center" />
                   </div>
+
                   <div class="sm:col-span-8 lg:col-span-7">
                     <h2 class="text-2xl font-bold text-gray-900 sm:pr-12">{{ currentDog.name }}</h2>
-                    <SwitchGroup as="div" class="flex items-center">
+
+                    <SwitchGroup v-if="!currentDog.isMatch" as="div" class="flex items-center">
                       <Switch
                         v-model="currentDog.favorite"
                         :class="[
@@ -125,6 +129,13 @@ function handleClose() {
                         </div>
                       </div>
                     </section>
+
+                    <p v-if="currentDog.isMatch" class="bold text-2xl text-green-500 mt-4">
+                      Congratulations! You found a match!
+                    </p>
+                    <p class="text-sm text-gray-500 mb-4">
+                      Add more dogs to your favorites list and try again
+                    </p>
                   </div>
                 </div>
               </div>
